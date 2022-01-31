@@ -8,6 +8,25 @@ const inquirer = require("inquirer");
 const chalk = require("chalk");
 const log = console.log;
 
+var instanceId = "YOUR_INSTANCE_ID_HERE"; // TODO: Replace it with your gateway instance ID here
+var clientId = "YOUR_CLIENT_ID_HERE"; // TODO: Replace it with your Premium client ID here
+var clientSecret = "YOUR_CLIENT_SECRET_HERE";  // TODO: Replace it with your Premium client secret here
+
+var groupName = "YOUR_UNIQUE_GROUP_NAME_HERE";
+
+var options = {
+    hostname: "api.whatsmate.net",
+    port: 80,
+    path: "/v1/telegram/group/message/" + instanceId,
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-WM-CLIENT-ID": clientId,
+        "X-WM-CLIENT-SECRET": clientSecret,
+        "Content-Length": Buffer.byteLength(jsonPayload)
+    }
+};
+
 const interview = async (input = null) => {
   let totalPrices = [];
   presentation();
@@ -104,7 +123,27 @@ const interview = async (input = null) => {
       totalPrices[maximun].toLocaleString()
     )} \n`
   );
+  
+  // Custom
+  if (totalPrices[minimun] <= 150) {
+    var jsonPayload = JSON.stringify({
+      group: groupName,   // TODO: Specify the name of the group
+      message: "[P2P] 1 USDT is LKR " + totalPrices[maximun].toLocaleString()  // TODO: Specify the content of your message
+    });
+    
+    var request = new http.ClientRequest(options);
+    request.end(jsonPayload);
 
+    request.on('response', function (response) {
+        console.log('Heard back from the WhatsMate Telegram Gateway:\n');
+        console.log('Status code: ' + response.statusCode);
+        response.setEncoding('utf8');
+        response.on('data', function (chunk) {
+            console.log(chunk);
+        });
+    });
+  }
+  
   thanks();
 };
 
